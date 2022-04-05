@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
 
-CURR_USER_KEY = "curr_user"
+CURR_USER_KEY = "curr_user" #current user
 
 app = Flask(__name__)
 
@@ -27,18 +27,23 @@ connect_db(app)
 
 ##############################################################################
 # User signup/login/logout
-
+#g is an object provided by flask(from flask import g)It is a global namespace for holding any data
+#you want during a single app context.For example, a before_request handler could set g.user,which
+#will be accessible to the route and other functions.
 
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
 
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
+    if CURR_USER_KEY in session: #if the current user is in session-if the current user logged in
+        g.user = User.query.get(session[CURR_USER_KEY]) #set the global user to the current user
 
     else:
         g.user = None
-
+# the before_request decorator allows us to create a function that will run before each request.
+#we can use it by decorating a function with @app.before_request
+#before_request functions are ideal for tasks such as:1.openning database connections
+#2.Loading user from the sesiion3.Working with the flask g object
 
 def do_login(user):
     """Log in user."""
@@ -116,7 +121,7 @@ def logout():
     do_logout()
     flash("You have successfully logged out" , 'success')
     return redirect("/login")
-#when you are implementing logout functionality, there are 3-session layers to concider.
+#when you are implementing logout functionality, there are 3-session layers to consider.
 #1. Application Session Layer: The first layer is the session inside your application. 
 #In a regular web application,you achieve this by storing information inside a cookie. 
 #Log users out of your applications by clearing their sessions.
@@ -142,7 +147,7 @@ def list_users():
         users = User.query.all()
     else:
         users = User.query.filter(User.username.like(f"%{search}%")).all()
-
+    #SQLAlchemy equivalet to SQL "select*from table where tags like "%search%"
     return render_template('users/index.html', users=users)
 
 
@@ -218,10 +223,30 @@ def stop_following(follow_id):
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
-def profile():
+def edit_profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = g.user
+    form = UserEditForm(obj=user)
+
+    if form.validate_on_submit():
+        if User.authenticate(user.username, form.password.data):
+            user.username = form.username.data
+            user.email = form.email.data
+            user.image_url = form.image_url.data or "/static/images/default-pic.png"
+            user.header_image_url = form.header_image_url.data or "/static/images/warbler-hero.jpg"
+            user.bio = form.bio.data
+
+            db.session.commit()
+            return redirect(f"/users/{user.id}")
+
+        flash("Invalid password, please try again.", 'danger')
+
+    return render_template('users/edit.html', form=form, user_id=user.id)
 
 
 @app.route('/users/delete', methods=["POST"])
@@ -257,7 +282,7 @@ def messages_add():
     form = MessageForm()
 
     if form.validate_on_submit():
-        msg = Message(text=form.text.data)
+        msg = Message(text=form.text.data) ##########??????????
         g.user.messages.append(msg)
         db.session.commit()
 
@@ -312,6 +337,12 @@ def homepage():
 
     else:
         return render_template('home-anon.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """404 NOT FOUND page."""
+
+    return render_template('404.html'), 404
 
 
 ##############################################################################
