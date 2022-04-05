@@ -190,10 +190,12 @@ nav + .container {
 .message-area,
 .timeline-image {
   display: inline-block;
+  
 }
 
 .message-area {
   margin-left: 10px;
+  
 }
 
 #warbler-hero {
@@ -257,6 +259,7 @@ nav + .container {
 
 #messages {
   position: relative;
+  margin-top: 50px;
 }
 
 #messages .message-link {
