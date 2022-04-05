@@ -28,6 +28,24 @@
             </h4>
           </li>
           <li class="stat">
+            <p class="small">Location</p>
+            <h4>
+              <a href="/users/{{ user.id }}">{{ user.location | length }}</a>
+            </h4>
+          </li>
+          <li class="stat">
+            <p class="small">Bio</p>
+            <h4>
+              <a href="/users/{{ user.id }}">{{ user.bio | length }}</a>
+            </h4>
+          </li>
+          <li class="stat">
+            <p class="small">Followers</p>
+            <h4>
+              <a href="/users/{{ user.id }}">{{ user.header_img_url | length }}</a>
+            </h4>
+          </li>
+          <li class="stat">
             <p class="small">Likes</p>
             <h4>TBD</h4>
           </li>
