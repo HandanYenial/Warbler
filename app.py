@@ -1,4 +1,4 @@
-import os #import the os module to interact with the underlying operating system
+import os #import the os module to interact with the underlying operating
 
 from flask import Flask, render_template, request, flash, redirect, session, g ,abort
 #from flask_debugtoolbar import DebugToolbarExtension
