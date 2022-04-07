@@ -49,6 +49,9 @@ class MessageViewTestCase(TestCase):
                                     password="testuser",
                                     image_url=None)
 
+        self.testuser_id = 8989
+        self.testuser.id = self.testuser_id
+
         db.session.commit()
 
     def test_add_message(self):
@@ -71,3 +74,42 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_add_no_session(self):
+        with self.client as c:
+            resp = c.post("/messages/new" , data{"text" : "Hello"} , follow_redirects=True)
+            self.assertEqual(resp.status_code,200)
+            self.assertIn("Access unauthorized" , str(resp.data))
+
+    def test_add_invalid_user(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = 99222224 # user does not exist
+
+            resp = c.post("/messages/new", data={"text": "Hello"}, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized" , str(resp.data))
+
+    def test_message-show(self):
+
+          m = Message(
+            id=1234,
+            text="a test message",
+            user_id=self.testuser_id
+        )
+        
+        db.session.add(m)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] =self.testuser.id
+
+            m = Message.query.get(1234)
+
+            resp = c.get(f'/messages/{m.id}')
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(m.text, str(resp.data))
+
+            
