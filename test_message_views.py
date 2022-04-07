@@ -81,6 +81,7 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(resp.status_code,200)
             self.assertIn("Access unauthorized" , str(resp.data))
 
+
     def test_add_invalid_user(self):
         with self.client as c:
             with c.session_transaction() as sess:
@@ -93,9 +94,9 @@ class MessageViewTestCase(TestCase):
     def test_message_show(self):
 
         m = Message(
-            id=1234,
-            text="a test message",
-            user_id=self.testuser_id
+            id = 1234,
+            text = "a test message",
+            user_id = self.testuser_id
         )
         
         db.session.add(m)   ####gives an indentation error
@@ -122,7 +123,7 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(resp.status_code , 404)
 
     def test_message_delete(self):
-         m = Message(
+        m = Message(
             id=1234,
             text="a test message",
             user_id=self.testuser_id
