@@ -77,7 +77,7 @@ class MessageViewTestCase(TestCase):
 
     def test_add_no_session(self):
         with self.client as c:
-            resp = c.post("/messages/new" , data{"text" : "Hello"} , follow_redirects=True)
+            resp = c.post("/messages/new" , data={"text":"Hello"} , follow_redirects=True)
             self.assertEqual(resp.status_code,200)
             self.assertIn("Access unauthorized" , str(resp.data))
 
@@ -90,15 +90,15 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("Access unauthorized" , str(resp.data))
 
-    def test_message-show(self):
+    def test_message_show(self):
 
-          m = Message(
+        m = Message(
             id=1234,
             text="a test message",
             user_id=self.testuser_id
         )
         
-        db.session.add(m)
+        db.session.add(m)   ####gives an indentation error
         db.session.commit()
 
         with self.client as c:
