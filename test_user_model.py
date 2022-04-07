@@ -41,7 +41,7 @@ db.create_all()
 class UserModelTestCase(TestCase):
     """Test views for messages."""
 
-    def setUp(self):
+    def setUp(self): #runs before each test case
         """Create test client, add sample data."""
 
         User.query.delete()
@@ -65,3 +65,54 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+
+    def test_repr(self):
+        """Does this function show user?"""
+        u = User(
+            id=1,
+            email="test@test.com",
+            username="testuser",
+            password="HASHED_PASSWORD"
+        )
+
+        db.session.add(u)
+        db.session.commit(u)
+    
+    #user should have the following message
+    self.assertEqual(repr(u) , '<User #1:testuser, test@test.com>') ###what is repr(u)
+
+    def test_is_followed_by_(self):
+        """Does this function show user?"""
+
+        u1 = User(
+            id=1,
+            email="test@test.com",
+            username="testuser",
+            password="HASHED_PASSWORD",
+        )
+
+        u2 = User(
+            id=2,
+            email="test2@test.com",
+            username="testuser2",
+            password="HASHED_PASSWORD2",
+        )
+
+        
+
+        follow = FollowersFollowee(
+            followee_id=1,
+            follower_id=2
+        )
+
+    
+        db.session.add(u1)
+        db.session.add(u2)
+        db.session.commit()
+        db.session.add(follow)
+        db.session.commit()
+
+        #user should have the following message
+        self.assertEqual(u2.is_followed_by(u1),True)
+        self.assertEqual(u2.followers.first(),u1)
+
